@@ -31,6 +31,12 @@ Zero ==ℕ Zero = True
 Zero ==ℕ (Suc m) = False
 (Suc n) ==ℕ (Suc m) = n ==ℕ m
 
+sym==ℕ : {n m : ℕ} → (n ==ℕ m) == True → (m ==ℕ n) == True
+sym==ℕ {Zero} {Zero} _ = Refl
+sym==ℕ {Suc n} {Zero} ()
+sym==ℕ {Zero} {Suc m} ()
+sym==ℕ {Suc n} {Suc m} proof[Suc[n]==ℕSuc[m]] = sym==ℕ {n} {m} proof[Suc[n]==ℕSuc[m]]
+
 leibnizid==ℕ : (A : ℕ → Set) → (n m : ℕ) → ((n ==ℕ m) == True) → A n → A m
 leibnizid==ℕ _ Zero Zero _ q = q
 leibnizid==ℕ _ Zero (Suc m) () _
