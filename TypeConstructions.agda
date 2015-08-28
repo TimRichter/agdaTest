@@ -27,6 +27,8 @@ data _+Set_ (A B : Set) : Set where
   Inl : A → A +Set B
   Inr : B → A +Set B
 
+infixr 3 _+Set_
+
 data _Σ_ (A : Set) (B : A →  Set) : Set where
   <<_,_>> : (a : A) → (B a) → (A Σ B)
 
@@ -51,20 +53,28 @@ data _Π_ (A : Set) (B : A → Set) : Set where
 _∘_ : {A B C : Set} → (g : B → C) → (f : A → B) → (A → C)
 (g ∘ f) a = g (f a)
 
-infix 3 _∘_
+infixr 3 _∘_
 
-_●_ : {A : Set} → { B : A → Set } → { C : {a : A} → B a → Set } →
+
+_●_ : {A : Set} → {B : A → Set} → {C : {a : A} → B a → Set} →
        (g : {a : A} → (b : B a) → C b ) →  (f : (a : A) → B a) → ((a : A) → C (f a))
 (g ● f) a = g ( f a )
+
+infixr 3 _●_
+
 
 _◐_ : {A B : Set} → { C : B → Set } →
        (g : (b : B) → C b ) → (f : A → B ) → ((a : A) → C (f a))
 (g ◐ f) a = g ( f a )
 
+infixr 3 _◐_
+
+
 _◑_ : {A : Set} → {B C : A → Set} → 
        (g : {a : A} → B a → C a ) → (f : (a : A) → B a ) → ((a : A) → C a)
 (g ◑ f) a = g ( f a )
 
+infixr 3 _◑_
 
 
 
@@ -72,17 +82,22 @@ _◑_ : {A : Set} → {B C : A → Set} →
 
 
 
-data _↔_ (A B : Set) : Set where
-  ↔proof : (A → B) × (B → A) → A ↔ B
+_↔_ : (A B : Set) → Set
+A ↔ B = (A → B) × (B → A)
+
+infixr 1 _↔_
+
 
 refl↔ : {A : Set} → A ↔ A
-refl↔ = ↔proof (< id , id >)
+refl↔ {A} = < id , id >
+
 
 symm↔ : {A B : Set} → A ↔ B → B ↔ A
-symm↔ (↔proof p) = ↔proof (< (pr2× p) , (pr1× p) >)
+symm↔ < f , g > = < g , f >
+
 
 trans↔ : {A B C : Set} → A ↔ B → B ↔ C → A ↔ C
-trans↔ (↔proof p) (↔proof q) = ↔proof < ((pr1× q) ∘ (pr1× p)) , ((pr2× p) ∘ (pr2× q)) >
+trans↔ < f1 , g1 > < f2 , g2 > = < f2 ∘ f1 , g1 ∘ g2 >
 
 
 {- Negation eines Typs -}

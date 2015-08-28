@@ -51,31 +51,45 @@ open import Bool
 
 open import TypeConstructions
 
-==to≤ : (n m : ℕ) → n == m → ((n ≤ m) == True)
-==to≤ Zero _ _ = Refl
-==to≤ (Suc n) Zero ()
-==to≤ (Suc n) (Suc m) p = ==to≤ n m (app pred p)
 
-≤↔+ : (n m : ℕ) → ((n ≤ m) == True) ↔ (ℕ Σ (λ (l : ℕ) -> ((n + l) == m)))
-≤↔+ n m = ↔proof < (≤→+ n m) , (+→≤ n m) > where 
-  ≤→+ : (n m : ℕ) → ((n ≤ m) == True) → ℕ Σ (λ (l : ℕ) -> ((n + l) == m))
-  ≤→+ n m p = << m - n , MinusIsInvers n m p >>
-  +→≤ : (n m : ℕ) → ℕ Σ (λ (l : ℕ) -> ((n + l) == m)) → ((n ≤ m) == True)
-  +→≤ Zero m _ = Refl
-  +→≤ (Suc n) Zero (<< l , p >>) = (g ∘ f) p where
-    f : ((Suc n) + l) == Zero → (Suc (n + l)) == Zero
-    f p = ==trans (==sym (SucNPlusMisSucNPlusM n l)) p
-    g :  (Suc (n + l)) == Zero → (((Suc n) ≤ Zero) == True)
-    g ()
-  +→≤ (Suc n) (Suc m) << l , p >> = +→≤ n m << l , app pred (==trans (==sym (SucNPlusMisSucNPlusM n l)) p) >>
 
-assoc+ : (n m k : ℕ) → ((n + m) + k) == (n + (m + k))
-assoc+ n m Zero = Refl
-assoc+ n m (Suc k) = app Suc (assoc+ n m k)
 
-comm+ : (n m : ℕ) → ((n + m) == (m + n)) 
-comm+ n Zero = ==sym (ZeroPlusNisN n)
-comm+ n (Suc m) = ==sym (==trans (SucNPlusMisSucNPlusM m n) (app Suc (==sym (comm+ n m))))
+
+
+
+assoc* : (n m k : ℕ) → ((n * m) * k) == (n * (m * k))
+assoc* n m Zero = Refl
+assoc* n m (Suc k) = ==trans proof[[[n*m]*k]+[n*m]]is[[n*m]+[[n*m]*k]] (==trans proof[[n*m]+[[n*m]*k]]is[[n*m]+[n*[m*k]]] 
+                     (==trans proof[[n*m]+[n*[m*k]]]is[[n*[m*k]]+[n*m]] proof[[n*[m*k]]+[n*m]]is[n*[[m*k]+m]])) where
+  proof[[[n*m]*k]+[n*m]]is[[n*m]+[[n*m]*k]] = comm+ ((n * m) * k) (n * m)
+  proof[[n*m]+[[n*m]*k]]is[[n*m]+[n*[m*k]]] = app (_+_ (n * m)) (assoc* n m k)
+  proof[[n*m]+[n*[m*k]]]is[[n*[m*k]]+[n*m]] = comm+ (n * m) (n * (m * k))
+  proof[[n*[m*k]]+[n*m]]is[n*[[m*k]+m]] = ==sym (distr n (m * k) m)
+
+fun[Suc[n]*m==[n*m]+m] : (n m : ℕ) → ((Suc n) * m) == ((n * m) + m)
+fun[Suc[n]*m==[n*m]+m] n Zero = Refl
+fun[Suc[n]*m==[n*m]+m] n (Suc m) = 
+  (Suc n) * (Suc m) 
+  ==〈 bydef 〉 ((Suc n) * m) + (Suc n)
+  ==〈 bydef 〉 Suc (((Suc n) * m) + n)
+  ==〈 app Suc (comm+ ((Suc n) * m) n) 〉 Suc (n + ((Suc n) * m))
+  ==〈 app Suc (app (_+_ n) (fun[Suc[n]*m==[n*m]+m] n m)) 〉 Suc (n + ((n * m) + m))
+  ==〈 app Suc (==sym (assoc+ n (n * m) m)) 〉 Suc ((n + (n * m)) + m)
+  ==〈 app Suc (comm+ (n + (n * m)) m) 〉 Suc (m + (n + (n * m)))
+  ==〈 app Suc (app (_+_ m) (comm+ n (n * m))) 〉 Suc (m + ((n * m) + n))
+  ==〈 app Suc (app (_+_ m) {(n * m) + n} {n * (Suc m)} Refl)  〉 Suc (m + (n * (Suc m)))
+  ==〈 app Suc (comm+ m (n * (Suc m))) 〉 Suc ((n * (Suc m)) + m)
+  ==〈 bydef 〉 ((n * (Suc m)) + (Suc m)) qed
+
+comm* : (n m : ℕ) → (n * m) == (m * n)
+comm* n Zero = ==sym (pr1× (zeroisidin[ℕ,*] n)) 
+comm* n (Suc m) =
+  n * (Suc m)
+  ==〈 bydef 〉 n * m + n
+  ==〈 comm+ (n * m) n 〉 n + n * m
+  ==〈 app (_+_ n) (comm* n m) 〉 n + m * n
+  ==〈 comm+ n (m * n) 〉 (m * n) + n
+  ==〈 ==sym (fun[Suc[n]*m==[n*m]+m] m n) 〉 (Suc m) * n qed
 
 ==+== : (n m l k : ℕ) → n == m → l == k → (n + l) == (m + k) 
 ==+== n m l k p q = ==trans (==trans (==trans (comm+ n l) (app (_+_ l) p)) (comm+ l m)) (app (_+_ m) q)
@@ -111,6 +125,12 @@ monotonicity≤+ n m k l r s = gapex (n + k) (m + l) (<< p + q , p17 >>) where
 ==to==ℕ {Suc n} {Zero} ()
 ==to==ℕ {Zero} {Suc m} ()
 ==to==ℕ {Suc n} {Suc m} p = ==to==ℕ {n} {m} (app pred p)
+
+==ℕto== : {n m : ℕ} → (n ==ℕ m) == True → n == m
+==ℕto== {Zero} {Zero} _ = Refl
+==ℕto== {Zero} {Suc m} ()
+==ℕto== {Suc n} {Zero} ()
+==ℕto== {Suc n} {Suc m} p = app Suc (==ℕto== {n} {m} p)
   
 h : (n m k : ℕ) → ((n - m) ≤ k) == True → (n ≤ (k + m)) == True
 h Zero _ _ _ = Refl
@@ -118,12 +138,6 @@ h _ Zero _ p = p
 h (Suc n) (Suc m) k p = monotonicity≤+ n (k + m) (Suc Zero) (Suc Zero) (h n m k proofn-m≤k) Refl where
   proofn-m≤k = trans≤ {n - m} {(Suc n) - (Suc m)} {k} proofn-m≤n'-m' p where
     proofn-m≤n'-m' = ==ℕto≤ {n - m} {(Suc n) - (Suc m)} (==to==ℕ {n - m} {(Suc n) - (Suc m)} Refl)        
-
-NMinusSucMisPredNMinusM : (n m : ℕ) → n - (Suc m) == pred (n - m)
-NMinusSucMisPredNMinusM Zero Zero = Refl
-NMinusSucMisPredNMinusM Zero (Suc m) = Refl
-NMinusSucMisPredNMinusM (Suc n) (Zero) = Refl
-NMinusSucMisPredNMinusM (Suc n) (Suc m) = NMinusSucMisPredNMinusM n m
 
 monotonicityPred : (n m : ℕ) → (n ≤ m) == True → ((pred n) ≤ (pred m)) == True
 monotonicityPred Zero _ _ = Refl
@@ -148,16 +162,7 @@ monotonicity≤- n m (Suc k) (Suc l) proofn≤m proofk'≥l' = trans≤ {n - (Su
     proofpredofn-k≤predofm-l = monotonicityPred (n - k) (m - l) (monotonicity≤- n m k l proofn≤m proofk'≥l')
   proofpredofm-l≤m-l' = ==ℕto≤ {pred (m - l)} {m - (Suc l)} (==to==ℕ  {pred (m - l)} {m - (Suc l)} (==sym (NMinusSucMisPredNMinusM m l)))
 
-Suc[pred[n-m]]is[n-m]for[n>m] : (n m : ℕ) → (n > m) == True → Suc (pred (n - m)) == n - m
-Suc[pred[n-m]]is[n-m]for[n>m] Zero _ ()
-Suc[pred[n-m]]is[n-m]for[n>m] (Suc n) Zero _ = Refl
-Suc[pred[n-m]]is[n-m]for[n>m] (Suc n) (Suc m) proofn>m = Suc[pred[n-m]]is[n-m]for[n>m] n m proofn>m
 
-[Sucn]-misSuc[n-m]for[n≥m] : (n m : ℕ) → (n ≥ m) == True → (Suc n) - m == Suc (n - m)
-[Sucn]-misSuc[n-m]for[n≥m] n Zero _ = Refl
-[Sucn]-misSuc[n-m]for[n≥m] n (Suc m) proofn≥Sucm = ==trans proof[n-m]isSuc[pred[n-m]] proofSuc[pred[n-m]]isSuc[n-[Sucm]] where
-  proof[n-m]isSuc[pred[n-m]] = ==sym (Suc[pred[n-m]]is[n-m]for[n>m] n m proofn≥Sucm)
-  proofSuc[pred[n-m]]isSuc[n-[Sucm]] = app Suc (==sym (NMinusSucMisPredNMinusM n m))
 
 [n+m]-lisn+[m-l]for[m≥l] : (n m l : ℕ) → (m ≥ l) == True → ((n + m) - l) == (n + (m - l))
 [n+m]-lisn+[m-l]for[m≥l] n m Zero _ = Refl
