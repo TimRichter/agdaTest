@@ -26,7 +26,7 @@ infixl 13 _+_
 
 {- (ℕ,+) ist ein kommutativer Monoid (mit Einselement Zero)  -}
 
-assoc+ : (n m k : ℕ) → ((n + m) + k) == (n + (m + k))
+assoc+ : (n m k : ℕ) → n + (m + k) == n + m + k
 assoc+ n m Zero = Refl
 assoc+ n m (Suc k) = app Suc (assoc+ n m k)
 
