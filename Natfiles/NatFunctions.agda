@@ -55,8 +55,26 @@ comm+ n (Suc m) = n + Suc m
     h n = n + Zero 
         ==⟨ bydef ⟩ n qed
 
+{-
+≤↔+ : (n m : ℕ) → n ≤ m ↔ ℕ Σ (λ (l : ℕ) -> n + l == m)
+≤↔+ n m = < (≤→+ n m) , (+→≤ n m) > where 
+  ≤→+ : (n m : ℕ) → n ≤ m → ℕ Σ (λ (l : ℕ) -> n + l == m)
+  ≤→+ n m pr[n≤m] = << m - n , MinusIsInvers n m pr[n≤m] >>
+  +→≤ : (n m : ℕ) → ℕ Σ (λ (l : ℕ) -> n + l == m → n ≤ m
+  +→≤ Zero m _ = ZeroInit
+  +→≤ (Suc n) Zero << l , pr[Suc[n]+l==Zero] >> = (g ∘ f) pr[Suc[n]+l==Zero] where
+    f : ((Suc n) + l) == Zero → (Suc (n + l)) == Zero
+    f pr[Suc[n]+l==Zero] = Suc (n + l)
+                         ==⟨ app Suc (comm+ n l) ⟩ Suc (l + n)
+                         ==⟨ bydef ⟩ l + Suc n
+                         ==⟨ comm+ l (Suc n) ⟩ Suc n + l
+                         ==⟨ pr[Suc[n]+l==Zero] ⟩ Zero qed
+    g : Suc (n + l) == Zero → Suc n ≤ Zero
+    g ()
+  +→≤ (Suc n) (Suc m) << l , pr[Suc[n]+l==Suc[m]] >> = 
 
-
++→≤ n m << l , app pred (==trans (==sym (SucNPlusMisSucNPlusM n l)) p) >>
+-}
 
 {- Definition Subtraktion -}
 
@@ -70,10 +88,9 @@ infixl 13 _-_
 
 {- Rechenregeln Subtraktion -}
 
-addSuc∘PredforDiff>Zero : (n m : ℕ) → n > m → Suc (pred (n - m)) == n - m
-addSuc∘PredforDiff>Zero Zero _ ()
-addSuc∘PredforDiff>Zero (Suc n) Zero _ = Refl
-addSuc∘PredforDiff>Zero (Suc n) (Suc m) pr[Suc[n]>Suc[m]] = addSuc∘PredforDiff>Zero n m (pred≤ pr[Suc[n]>Suc[m]])
+--extractSucfromMinuend : (n m : ℕ) → (Suc n) - m == Suc (n - m)
+--extractSucfromMinuend n Zero = (Suc n) - Zero ==⟨ bydef ⟩ (Suc n) ==⟨ bydef ⟩ Suc (n - Zero) qed
+--extractSucfromMinuend n (Suc m) = (Suc n) - (Suc m) ==⟨ bydef ⟩ n - m
 
 extractSucfromSubtrahent : (n m : ℕ) → n - Suc m == pred (n - m)
 extractSucfromSubtrahent Zero Zero = Zero - Suc Zero 
@@ -95,17 +112,6 @@ extractSucfromSubtrahent (Suc n) (Suc m) = (Suc n) - (Suc (Suc m))
                                          ==⟨ bydef ⟩ pred (Suc n - Suc m) qed
 
 
-extractSucfromMinuendforDiff≥Zero : (n m : ℕ) → n ≥ m → Suc n - m == Suc (n - m)
-extractSucfromMinuendforDiff≥Zero n Zero _ = Suc n - Zero
-                                         ==⟨ bydef ⟩ Suc n
-                                         ==⟨ bydef ⟩ Suc (n - Zero) qed
-extractSucfromMinuendforDiff≥Zero n (Suc m) pr[n≥Suc[m]] = Suc n - Suc m
-                                                       ==⟨ bydef ⟩ n - m
-                                                       ==⟨ sym== (addSuc∘PredforDiff>Zero n m pr[n≥Suc[m]]) ⟩ Suc (pred (n - m))
-                                                       ==⟨ app Suc (sym== (extractSucfromSubtrahent n m)) ⟩ Suc (n - Suc m) qed
-
-
-
 {- Beweis, dass für n ≤ m gilt, dass n + (m - n) == m -}
 
 --assoc+-forposdiff : (n m l : ℕ) → m ≥ l → n + (m - l) = (n + m) - l
@@ -122,31 +128,7 @@ MinusIsInvers (Suc n) (Suc m) pr[Suc[n]≤Suc[m]] = Suc n + (Suc m - Suc n)
                                                 ==⟨ app Suc (MinusIsInvers n m (pred≤ pr[Suc[n]≤Suc[m]])) ⟩ Suc m qed
 
 
-≤↔+ : (n m : ℕ) → n ≤ m ↔ ℕ Σ (λ (l : ℕ) -> n + l == m)
-≤↔+ n m = < (≤→+ n m) , (+→≤ n m) > where 
-  ≤→+ : (n m : ℕ) → n ≤ m → ℕ Σ (λ (l : ℕ) -> n + l == m)
-  ≤→+ n m pr[n≤m] = << m - n , MinusIsInvers n m pr[n≤m] >>
-  +→≤ : (n m : ℕ) → ℕ Σ (λ (l : ℕ) -> n + l == m) → n ≤ m
-  +→≤ Zero m _ = ZeroInit
-  +→≤ (Suc n) Zero << l , pr[Suc[n]+l==Zero] >> = (g ∘ f) pr[Suc[n]+l==Zero] where
-    f : ((Suc n) + l) == Zero → (Suc (n + l)) == Zero
-    f pr[Suc[n]+l==Zero] = Suc (n + l)
-                         ==⟨ app Suc (comm+ n l) ⟩ Suc (l + n)
-                         ==⟨ bydef ⟩ l + Suc n
-                         ==⟨ comm+ l (Suc n) ⟩ Suc n + l
-                         ==⟨ pr[Suc[n]+l==Zero] ⟩ Zero qed
-    g : Suc (n + l) == Zero → Suc n ≤ Zero
-    g ()
-  +→≤ (Suc n) (Suc m) << l , pr[Suc[n]+l==Suc[m]] >> = Suc≤ (+→≤ n m << l , pr[n+l==m] >>) where
-    pr[n+l==m] = n + l
-               ==⟨ bydef ⟩ pred (Suc (n + l))
-               ==⟨ app pred pr[Suc[n+l]==Suc[m]] ⟩ pred (Suc m)
-               ==⟨ bydef ⟩ m qed where
-      pr[Suc[n+l]==Suc[m]] = Suc (n + l)
-                           ==⟨ app Suc (comm+ n l) ⟩ Suc (l + n)
-                           ==⟨ bydef ⟩ l + Suc n
-                           ==⟨ comm+ l (Suc n) ⟩ Suc n + l
-                           ==⟨ pr[Suc[n]+l==Suc[m]] ⟩ Suc m qed
+
 
 
 {- Multiplikation -}
@@ -159,18 +141,8 @@ n * (Suc m) = (n * m) + n
 infixl 14 _*_
 
 
-distr : (n m l : ℕ) → n * (m + l) == n * m + n * l
-distr n m Zero = Refl
-distr n m (Suc l) = n * (m + Suc l)
-                  ==⟨ app (_*_ n) (bydef {ℕ} {m + Suc l}) ⟩ n * (Suc (m + l))
-                  ==⟨ bydef ⟩ n * (m + l) + n
-                  ==⟨ comm+ (n * (m + l)) n ⟩ n + n * (m + l)
-                  ==⟨ app (_+_ n) (distr n m l) ⟩ n + (n * m + n * l)
-                  ==⟨ comm+ n (n * m + n * l) ⟩ (n * m + n * l) + n
-                  ==⟨ assoc+ (n * m) (n * l) n ⟩ n * m + (n * l + n)
-                  ==⟨ app (_+_ (n * m)) (bydef {ℕ} {n * l + n}) ⟩ n * m + n * Suc l qed
 
--- Gefällt mir noch nicht. Möchte auf die impliziten Parameter verzichten!
+
 
 {- Division -}
 

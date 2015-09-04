@@ -182,6 +182,11 @@ infix 11 _≥_
   ≤∧≥←== : {n m : ℕ} → n == m → (n ≤ m) × (m ≤ n)
   ≤∧≥←== {n} {.n} Refl = < refl≤ , refl≤ >
 
+==ℕto≤ : {n m : ℕ} → (n == m) → (n ≤ m)
+==ℕto≤ {n} {m} pr[n==m] = pr1× ((pr2× ≤∧≥↔==) pr[n==m])
+
+≤∧≥to==ℕ : {n m : ℕ} → (n ≤ m) × (m ≤ n) → n == m
+≤∧≥to==ℕ = (pr1× ≤∧≥↔==)
 
 {- Definition von > über < -}
 
