@@ -17,20 +17,24 @@ data ⊥ : Set where
 data _×_ (A B : Set) : Set where
   <_,_> : A → B → A × B
 
+infixr 4 _×_
+
 pr1× : {A B : Set} → A × B → A
 pr1× < a , b > = a
 
 pr2× : {A B : Set} → A × B → B
 pr2× < a , b > = b
 
-data _+Set_ (A B : Set) : Set where
-  Inl : A → A +Set B
-  Inr : B → A +Set B
+data _+_ (A B : Set) : Set where
+  Inl : A → A + B
+  Inr : B → A + B
 
-infixr 3 _+Set_
+infixr 3 _+_
 
 data _Σ_ (A : Set) (B : A →  Set) : Set where
   <<_,_>> : (a : A) → (B a) → (A Σ B)
+
+infixr 2 _Σ_ 
 
 pr1Σ : {A : Set} → {B : A → Set} → (A Σ B) → A
 pr1Σ << a , _ >> = a
@@ -53,28 +57,28 @@ data _Π_ (A : Set) (B : A → Set) : Set where
 _∘_ : {A B C : Set} → (g : B → C) → (f : A → B) → (A → C)
 (g ∘ f) a = g (f a)
 
-infixr 3 _∘_
+infixr 6 _∘_
 
 
 _●_ : {A : Set} → {B : A → Set} → {C : {a : A} → B a → Set} →
        (g : {a : A} → (b : B a) → C b ) →  (f : (a : A) → B a) → ((a : A) → C (f a))
 (g ● f) a = g ( f a )
 
-infixr 3 _●_
+infixr 6 _●_
 
 
 _◐_ : {A B : Set} → { C : B → Set } →
        (g : (b : B) → C b ) → (f : A → B ) → ((a : A) → C (f a))
 (g ◐ f) a = g ( f a )
 
-infixr 3 _◐_
+infixr 6 _◐_
 
 
 _◑_ : {A : Set} → {B C : A → Set} → 
        (g : {a : A} → B a → C a ) → (f : (a : A) → B a ) → ((a : A) → C a)
 (g ◑ f) a = g ( f a )
 
-infixr 3 _◑_
+infixr 6 _◑_
 
 
 
@@ -104,13 +108,11 @@ trans↔ < f1 , g1 > < f2 , g2 > = < f2 ∘ f1 , g1 ∘ g2 >
 ¬_ : Set → Set
 ¬ P = P → ⊥
 
-infix 3 ¬_
+infix 7 ¬_
 
 {- Dec A als Typ, dessen Elemente allesamt Beweise von A oder Widerlegungen von A sind -}
 data Dec (A : Set) : Set where
   Yes : ( a :   A) → Dec A
   No  : (¬a : ¬ A) → Dec A
-
-
 
 

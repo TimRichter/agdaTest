@@ -5,7 +5,7 @@ open import TypeConstructions public
 data _==_ {A : Set} (x : A) : A → Set where
   Refl : x == x
 
-infix 4 _==_
+infix 5 _==_
 
 _==⟨_⟩_ : {A : Set} → (x : A) → {y z : A} → x == y → y == z → x == z
 x ==⟨ Refl ⟩ Refl = Refl
