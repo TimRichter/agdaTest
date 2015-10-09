@@ -32,7 +32,7 @@ data _+_ (A B : Set) : Set where
 infixr 3 _+_
 
 data _Σ_ (A : Set) (B : A →  Set) : Set where
-  <<_,_>> : (a : A) → (B a) → (A Σ B)
+  <<_,_>> : (a : A) → (B a) → (A Σ B) 
 
 infixr 2 _Σ_ 
 
@@ -41,6 +41,9 @@ pr1Σ << a , _ >> = a
 
 pr2Σ : {A : Set} → {B : A → Set} → (ω : (A Σ B)) → B (pr1Σ ω)
 pr2Σ << a , b >> = b
+
+explicitSigma : {A : Set} -> (B : A → Set) → (a : A) → B a → (A Σ B)
+explicitSigma B a b = << a , b >>
 
 {- Nur mal zum Nachdenken der Selbstbezug
 data _→eigenheimer_ (A B : Set) : Set where
