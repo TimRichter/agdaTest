@@ -54,64 +54,39 @@ data _Π_ (A : Set) (B : A → Set) : Set where
 -}
 
 
-
-
 {- Funktionenkomposition -}
 _∘_ : {A B C : Set} → (g : B → C) → (f : A → B) → (A → C)
 (g ∘ f) a = g (f a)
 
-infixr 6 _∘_
+infixr 7 _∘_
 
 
 _●_ : {A : Set} → {B : A → Set} → {C : {a : A} → B a → Set} →
        (g : {a : A} → (b : B a) → C b ) →  (f : (a : A) → B a) → ((a : A) → C (f a))
 (g ● f) a = g ( f a )
 
-infixr 6 _●_
+infixr 7 _●_
 
 
 _◐_ : {A B : Set} → { C : B → Set } →
        (g : (b : B) → C b ) → (f : A → B ) → ((a : A) → C (f a))
 (g ◐ f) a = g ( f a )
 
-infixr 6 _◐_
+infixr 7 _◐_
 
 
 _◑_ : {A : Set} → {B C : A → Set} → 
        (g : {a : A} → B a → C a ) → (f : (a : A) → B a ) → ((a : A) → C a)
 (g ◑ f) a = g ( f a )
 
-infixr 6 _◑_
-
-
-
-
-
-
-
-_↔_ : (A B : Set) → Set
-A ↔ B = (A → B) × (B → A)
-
-infixr 1 _↔_
-
-
-refl↔ : {A : Set} → A ↔ A
-refl↔ {A} = < id , id >
-
-
-symm↔ : {A B : Set} → A ↔ B → B ↔ A
-symm↔ < f , g > = < g , f >
-
-
-trans↔ : {A B C : Set} → A ↔ B → B ↔ C → A ↔ C
-trans↔ < f1 , g1 > < f2 , g2 > = < f2 ∘ f1 , g1 ∘ g2 >
+infixr 7 _◑_
 
 
 {- Negation eines Typs -}
 ¬_ : Set → Set
 ¬ P = P → ⊥
 
-infix 7 ¬_
+infix 8 ¬_
 
 {- Dec A als Typ, dessen Elemente allesamt Beweise von A oder Widerlegungen von A sind -}
 data Dec (A : Set) : Set where

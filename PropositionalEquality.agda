@@ -203,3 +203,27 @@ transpEqLemmb {A} {a} {x1} =
     trans== (sym== (refl x1)) q
      qed
 
+{- Lemma 2.11.2 c HoTT-book -}
+
+transpEqLemmc : {A : Set} → {x1 x2 : A} →
+                (p : x1 == x2) → (q : x1 == x1) →
+                transp (λ x -> x == x) p q == trans== (trans== (sym== p) q) p
+transpEqLemmc {A} {x1} =
+  bpI {A} {x1} P d where
+  P : {x2 : A} → x1 == x2 → Set
+  P p = (q : x1 == x1) → transp (λ x -> x == x) p q == trans== (trans== (sym== p) q) p 
+  d : P (refl x1)
+  d q =
+    transp (λ x -> x == x) (refl x1) q
+     ==⟨ transpRefl (λ x -> x == x) q ⟩
+    q
+     ==⟨ sym== (leftUnit==Refl q) ⟩
+    trans== (refl x1) q
+     ==⟨ bydef ⟩
+    trans== (sym== (refl x1)) q
+     ==⟨ sym== (rightUnit==Refl (trans== (sym== (refl x1)) q)) ⟩
+    trans== (trans== (sym== (refl x1)) q) (refl x1)
+     qed
+
+
+

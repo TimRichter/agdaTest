@@ -3,7 +3,7 @@ module Natfiles.NatSizeComparison where
 open import Natfiles.NatDataDef
 
 open import PropositionalEquality
-
+  
 open import Bool
 
 open import Natfiles.NatSizelessFunctions
