@@ -40,8 +40,18 @@ rinv {A} {B} f = (B → A) Σ (λ h -> f ∘ h ∼ id)
 biinv : {A B : Set} → (f : A → B) → Set
 biinv f = linv f × rinv f
 
+ishae : {A B : Set} → (f : A → B) → Set
+ishae {A} {B} f = (B → A) Σ (λ g ->
+                              g ∘ f ∼ id Σ (λ η -> f ∘ g ∼ id Σ (λ ε -> (x : A) → app f (η x) == ε (f x))))
+
 {- coherences -}
 
 lcoh : {A B : Set} → (f : A → B) → linv f → Set
-lcoh {A} {B} f << g , η >> = {!!}
+lcoh {A} {B} f << g , η >> =  f ∘ g ∼ id Σ (λ ε -> (y : B) → app g (ε y) == η (g y))
+
+rcoh : {A B : Set} → (f : A → B) → rinv f → Set
+rcoh {A} {B} f << g , ε >> =  g ∘ f ∼ id Σ (λ η -> (x : A) → app f (η x) == ε (f x))
+
+
+
 

@@ -4,11 +4,91 @@ module PropositionalEquality where
 
 open import TypeConstructions public
 
+
 data _==_ {A : Set} (x : A) : A → Set where
   Refl : x == x
 
 infix 5 _==_
 
+{----------- contents --------------------------
+
+refl : {A : Set} → (x : A) → x == x
+
+{- path induction principle -}
+pI : {A : Set} → (P : {x y : A} → x == y → Set) →
+    (d : (x : A) → P (refl x)) →
+    {x y : A} → (p : x == y) → P p
+
+{- based path induction -}
+bpI : {A : Set} → {a : A} → 
+      (P : {x : A} → a == x → Set) →
+      (d : P (refl a)) →
+      {x : A} → (p : a == x) → P p
+
+{- == is an equivalence relation -}
+refl== : {A : Set} → {x : A} → (x == x)
+sym== : {A : Set} → {x y : A} → (x == y) → (y == x)
+trans== : {A : Set} → {x y z : A}  → (x == y) → (y == z) → (x == z)
+
+{- equational reasoning -}
+_==⟨_⟩_ : {A : Set} → (x : A) → {y z : A} → x == y → y == z → x == z
+_qed : {A : Set} → (x : A) → x == x
+bydef : {A : Set} → {x : A} → x == x
+
+{- contractability -}
+isContr : Set → Set
+
+{- Refl is left unit -}
+leftUnit==Refl : {A : Set} → {x y : A} → (p : x == y) →
+                 trans== (refl x) p == p
+
+{- Refl is right unit -}
+rightUnit==Refl : {A : Set} → {x y : A} → (p : x == y) →
+                  trans== p (refl y) == p
+
+{- applying functions to equalities -}
+app : {A B : Set} → (f : A -> B) → {x y : A} → (x == y) → (f x == f y)
+
+{- transport -}
+transp : {A : Set} → (B : A → Set) →
+         {x y : A} → x == y → B x → B y
+
+{- characterization of equality in Σ types -}
+equalityΣ : {A : Set} → {B : A → Set} →
+            (ω1 ω2 : A Σ B) →
+            ((pr1Σ ω1 == pr1Σ ω2) Σ λ p -> transp B p (pr2Σ ω1) == pr2Σ ω2) →
+            ω1 == ω2
+
+{- transporting along refl is identity -} 
+transpRefl : {A : Set} → (B : A → Set) →
+             {x : A} → (b : B x) →
+             transp B (refl x) b == b
+
+{- Lemma 2.11.2 a HoTT-book -}
+transpEqLemma : {A : Set} → {a x1 x2 : A} →
+                (p : x1 == x2) → (q : a == x1) →
+                transp (λ (x : A) -> a == x) p q == trans== q p
+
+{- Lemma 2.11.2 b HoTT-book -}
+transpEqLemmb : {A : Set} → {a x1 x2 : A} →
+                (p : x1 == x2) → (q : x1 == a) →
+                transp (λ x -> x == a) p q == trans== (sym== p) q
+
+{- Lemma 2.11.2 c HoTT-book -}
+transpEqLemmc : {A : Set} → {x1 x2 : A} →
+                (p : x1 == x2) → (q : x1 == x1) →
+                transp (λ x -> x == x) p q == trans== (trans== (sym== p) q) p
+
+{- Lemma 3.11.8 -}
+pathSpaceContractible : {A : Set} → (a : A) →
+              isContr (A Σ λ x -> a == x)
+
+{- no longer provable (--without-K)
+uip : {A : Set} → {x y : A} → (p q : x == y) → p == q
+uip Refl Refl = Refl
+-}
+
+------------------------------------------------}
 refl : {A : Set} → (x : A) → x == x
 refl x = Refl
 
@@ -17,6 +97,11 @@ pI : {A : Set} → (P : {x y : A} → x == y → Set) →
     (d : (x : A) → P (refl x)) →
     {x y : A} → (p : x == y) → P p
 pI P d {x} {.x} Refl = d x
+
+
+{- == is an equivalence relation -}
+refl== : {A : Set} → {x : A} → (x == x)
+refl== {_} {x} = refl x
 
 sym== : {A : Set} → {x y : A} → (x == y) → (y == x)
 sym== {A} = pI P d where
@@ -39,13 +124,12 @@ x ==⟨ p ⟩ q = trans== p q
 infixr 2 _==⟨_⟩_
 
 _qed : {A : Set} → (x : A) → x == x
-x qed = refl x
+x qed = refl== {_} {x}
 
 infixr 2 _qed
 
 bydef : {A : Set} → {x : A} → x == x
 bydef {A} {x} = refl x
-
 
 {- applying functions to equalities -}
 app : {A B : Set} → (f : A -> B) → {x y : A} → (x == y) → (f x == f y)
@@ -68,11 +152,6 @@ transpRefl : {A : Set} → (B : A → Set) →
              {x : A} → (b : B x) →
              transp B (refl x) b == b
 transpRefl B b = (refl b)
-
-{- no longer provable (--without-K)
-uip : {A : Set} → {x y : A} → (p q : x == y) → p == q
-uip Refl Refl = Refl
--}
 
 leftUnit==Refl : {A : Set} → {x y : A} → (p : x == y) →
                  trans== (refl x) p == p
@@ -183,6 +262,7 @@ bpI {A} {a} P d {x} p =
        ω
         qed
 
+
 {- Lemma 2.11.2 b HoTT-book -}
 
 transpEqLemmb : {A : Set} → {a x1 x2 : A} →
@@ -202,6 +282,7 @@ transpEqLemmb {A} {a} {x1} =
      ==⟨ bydef ⟩
     trans== (sym== (refl x1)) q
      qed
+
 
 {- Lemma 2.11.2 c HoTT-book -}
 
@@ -224,6 +305,4 @@ transpEqLemmc {A} {x1} =
      ==⟨ sym== (rightUnit==Refl (trans== (sym== (refl x1)) q)) ⟩
     trans== (trans== (sym== (refl x1)) q) (refl x1)
      qed
-
-
 
