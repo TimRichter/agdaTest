@@ -52,6 +52,3 @@ lcoh {A} {B} f << g , η >> =  f ∘ g ∼ id Σ (λ ε -> (y : B) → app g (ε
 rcoh : {A B : Set} → (f : A → B) → rinv f → Set
 rcoh {A} {B} f << g , ε >> =  g ∘ f ∼ id Σ (λ η -> (x : A) → app f (η x) == ε (f x))
 
-
-
-

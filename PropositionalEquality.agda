@@ -46,12 +46,30 @@ leftUnit==Refl : {A : Set} → {x y : A} → (p : x == y) →
 rightUnit==Refl : {A : Set} → {x y : A} → (p : x == y) →
                   trans== p (refl y) == p
 
-{- applying functions to equalities -}
-app : {A B : Set} → (f : A -> B) → {x y : A} → (x == y) → (f x == f y)
-
 {- transport -}
 transp : {A : Set} → (B : A → Set) →
          {x y : A} → x == y → B x → B y
+
+{- transporting along refl is identity -}
+transpRefl : {A : Set} → (B : A → Set) →
+             {x : A} → (b : B x) →
+             transp B (refl x) b == b
+
+{- applying functions to equalities -}
+ap : {A B : Set} → (f : A -> B) → {x y : A} → (x == y) → (f x == f y)
+
+{- (ap f) maps refl to refl -}
+apRefl : {A B : Set} → (f : A → B) → (x : A) → ap f (refl x) == refl (f x)
+
+{- (ap id) is id -}
+apId : {A : Set} → {x y : A} → (p : x == y) → ap id p == p
+
+{- applying dependent functions to equalities -}
+apd : {A : Set} → {B : A → Set} → (f : (x : A) -> B x) → {x y : A} → (x == y) → (f x == f y)
+
+{- apd maps refl to refl -}
+apdRefl : {A : Set} → {B : A → Set} → (f : (x : A) → B x) →
+          (x : A) → apd f (refl x) == refl (f x)
 
 {- characterization of equality in Σ types -}
 equalityΣ : {A : Set} → {B : A → Set} →
@@ -62,7 +80,7 @@ equalityΣ : {A : Set} → {B : A → Set} →
 {- transporting along refl is identity -} 
 transpRefl : {A : Set} → (B : A → Set) →
              {x : A} → (b : B x) →
-             transp B (refl x) b == b
+             transp B (refl x) b == b 
 
 {- Lemma 2.11.2 a HoTT-book -}
 transpEqLemma : {A : Set} → {a x1 x2 : A} →
@@ -110,12 +128,24 @@ sym== {A} = pI P d where
   d : (x : A) → P (refl x)
   d x = refl x
 
+{- symbol for inverse path: \wr -}
+_≀ : {A : Set} → {x y : A} → (x == y) → (y == x)
+_≀ = sym==
+
+infix 8 _≀
+
 trans== : {A : Set} → {x y z : A}  → (x == y) → (y == z) → (x == z)
 trans== {A} {x} {y} {z} p = (pI P' d') {x} {y} p {z} where
    P' : {x y : A} → x == y → Set
    P' {x} {y} p = {z : A} → y == z → x == z
    d' : (x : A) → P' {x} {x} (refl x)
    d' x = id
+
+{- symbol for path concatenation: \cdot -}
+_·_ : {A : Set} → {x y z : A}  → (x == y) → (y == z) → (x == z)
+_·_  = trans== 
+
+infixr 7 _·_
 
 {- for equational reasoning -}
 _==⟨_⟩_ : {A : Set} → (x : A) → {y z : A} → x == y → y == z → x == z
@@ -131,14 +161,6 @@ infixr 2 _qed
 bydef : {A : Set} → {x : A} → x == x
 bydef {A} {x} = refl x
 
-{- applying functions to equalities -}
-app : {A B : Set} → (f : A -> B) → {x y : A} → (x == y) → (f x == f y)
-app {A} {B} f = pI P d where
-  P : {x y : A} → x == y → Set
-  P {x} {y} p = f x == f y
-  d : (x : A) → P {x} {x} (refl x)
-  d x = refl (f x)
-
 {- transport -}
 transp : {A : Set} → (B : A → Set) →
          {x y : A} → x == y → B x → B y
@@ -148,10 +170,48 @@ transp {A} B = pI P d where
    d : (x : A) → P (refl x)
    d x = id
 
+{- transporting along refl is identity -}
 transpRefl : {A : Set} → (B : A → Set) →
              {x : A} → (b : B x) →
              transp B (refl x) b == b
 transpRefl B b = (refl b)
+
+{- applying functions to equalities -}
+ap : {A B : Set} → (f : A → B) → {x y : A} → (x == y) → (f x == f y)
+ap {A} {B} f = pI P d where
+  P : {x y : A} → x == y → Set
+  P {x} {y} p = f x == f y
+  d : (x : A) → P {x} {x} (refl x)
+  d x = refl (f x)
+
+{- (ap f) maps refl to refl -}
+apRefl : {A B : Set} → (f : A → B) → (x : A) → ap f (refl x) == refl (f x)
+apRefl {A} {B} f x =
+  ap f (refl x) ==⟨ refl (refl (f x)) ⟩ refl (f x) qed
+
+{- (ap id) is id -}
+apId : {A : Set} → {x y : A} → (p : x == y) → ap id p == p
+apId {A} = pI P d where
+  P : {x y : A} → x == y → Set
+  P p = ap id p == p
+  d : (x : A) → P (refl x)
+  d x =
+    ap id (refl x) ==⟨ refl (refl x) ⟩ (refl x) qed
+
+{- applying dependent functions to equalities -}
+apd : {A : Set} → {B : A → Set} → (f : (x : A) → B x) →
+      {x y : A} → (p : x == y) → (transp B p (f x) == f y)
+apd {A} {B} f = pI P d where
+  P : {x y : A} → x == y → Set
+  P {x} {y} p = transp B p (f x) == f y
+  d : (x : A) → P {x} {x} (refl x)
+  d x = (transp B (refl x) (f x)) ==⟨ transpRefl B (f x) ⟩ (f x) qed
+
+{- apd maps refl to refl -}
+apdRefl : {A : Set} → {B : A → Set} → (f : (x : A) → B x) →
+          (x : A) → apd f (refl x) == refl (f x)
+apdRefl {A} {B} f x =
+  apd f (refl x) ==⟨ refl (refl (f x)) ⟩ refl (f x) qed
 
 leftUnit==Refl : {A : Set} → {x y : A} → (p : x == y) →
                  trans== (refl x) p == p
@@ -305,4 +365,36 @@ transpEqLemmc {A} {x1} =
      ==⟨ sym== (rightUnit==Refl (trans== (sym== (refl x1)) q)) ⟩
     trans== (trans== (sym== (refl x1)) q) (refl x1)
      qed
+
+
+{-
+transpEqDepFun : {A : Set} → {B : A → Set} → (f g : (x : A) → B x) →
+                 {a0 a1 : A} → (p : a0 == a1) → (q : f a0 == g a0) →
+                 transp (λ x -> f x == g x) p q ==  (apd f p)≀ · ap (transp B p) q · apd g p
+transpEqDepFun {A} {B} f g = pI P d where
+  P : {a0 a1 : A} → a0 == a1 → Set
+  P {a0} {a1} p = (q : f a0 == g a0) → transp (λ x -> f x == g x) p q ==  (apd f p)≀ · ap (transp B p) q · apd g p
+  d : (a0 : A) → P (refl a0)
+  d a0 q =
+    transp (λ x -> f x == g x) (refl a0) q
+    ==⟨ transpRefl (λ x -> f x == g x) q ⟩
+    q
+    ==⟨ (rightUnit==Refl q)≀ ⟩
+    q · refl (g a0)
+    ==⟨ ap (trans== q) (apdRefl g a0)≀ ⟩
+    q · apd g (refl a0)
+    ==⟨ (leftUnit==Refl (q · apd g (refl a0)))≀ ⟩
+    refl (f a0) · q · apd g (refl a0)
+    ==⟨ bydef ⟩
+    (refl (f a0))≀ · q · apd g (refl a0)
+    ==⟨ ap (λ π -> (π)≀ · q · apd g (refl a0)) (apdRefl f a0)≀ ⟩
+    (apd f (refl a0))≀ · q · apd g (refl a0)
+    ==⟨ ap (λ π -> (apd f (refl a0))≀ · π · apd g (refl a0)) ((transpRefl B q)≀) ⟩
+
+           das funktioniert noch nicht, wir bräuchten ausser transRefl eine
+           etwas stärkere Version von apId, die zeigt, dass  aus f ~ id folgt aus
+           ap f ~ ap id ((nach apId) ~ id)    Wie kann man das zeigen?
+    (apd f (refl a0))≀ · (ap (transp B (refl a0)) q) · apd g (refl a0)
+    qed
+-}
 
