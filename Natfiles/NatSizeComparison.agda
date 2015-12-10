@@ -19,10 +19,10 @@ decEqℕ {Zero} {Suc m} = No f where
   f : {m : ℕ} -> (Zero == (Suc m)) → ⊥
   f ()
 decEqℕ {Suc n} {Suc m} with (decEqℕ {n} {m})
-decEqℕ {Suc n} {Suc m} | (Yes nEqm)  = Yes (app Suc nEqm)
+decEqℕ {Suc n} {Suc m} | (Yes nEqm)  = Yes (ap Suc nEqm)
 decEqℕ {Suc n} {Suc m} | (No  ¬nEqm) = No (¬nEqm ∘ f) where
                f : (Suc n == Suc m) → (n == m)
-               f snEqsm = (app pred snEqsm)
+               f snEqsm = (ap pred snEqsm)
 
 
 {- Definition von ≤ als Datentyp -}
@@ -67,7 +67,7 @@ antisym≤ : {n m : ℕ} → n ≤ m → m ≤ n → (n == m)
 antisym≤ {Zero} {Zero} _ _ = Refl
 antisym≤ {Suc n} {Zero} () _ 
 antisym≤ {Zero} {Suc m} _ ()
-antisym≤ {Suc n} {Suc m} pr[Suc[n]≤Suc[m]] pr[Suc[m]≤Suc[n]]  = app Suc (antisym≤ {n} {m} (pred≤ pr[Suc[n]≤Suc[m]]) (pred≤ pr[Suc[m]≤Suc[n]]))
+antisym≤ {Suc n} {Suc m} pr[Suc[n]≤Suc[m]] pr[Suc[m]≤Suc[n]]  = ap Suc (antisym≤ {n} {m} (pred≤ pr[Suc[n]≤Suc[m]]) (pred≤ pr[Suc[m]≤Suc[n]]))
 
 
 trans≤ : {n m l : ℕ} → n ≤ m → m ≤ l → n ≤ l
@@ -118,10 +118,10 @@ infix 11 _<_
   f : Suc n ≤ Suc m → Suc n < Suc m +Set Suc n == Suc m
   f pr[Suc[n]≤Suc[m]] with ((pr1× (≤↔<∨== {n} {m})) (pred≤ pr[Suc[n]≤Suc[m]]))
   f pr[Suc[n]≤Suc[m]] | Inl pr[n<m] = Inl (Suc≤ pr[n<m])
-  f pr[Suc[n]≤Suc[m]] | Inr pr[n==m] = Inr (app Suc pr[n==m])
+  f pr[Suc[n]≤Suc[m]] | Inr pr[n==m] = Inr (ap Suc pr[n==m])
   g : Suc n < Suc m +Set Suc n == Suc m → Suc n ≤ Suc m
   g (Inl pr[Suc[n]<Suc[m]]) = Suc≤ ((pr2× (≤↔<∨== {n} {m})) (Inl (pred≤ pr[Suc[n]<Suc[m]])))
-  g (Inr pr[Suc[n]==Suc[m]]) = Suc≤ ((pr2× (≤↔<∨== {n} {m})) (Inr (app pred pr[Suc[n]==Suc[m]])))
+  g (Inr pr[Suc[n]==Suc[m]]) = Suc≤ ((pr2× (≤↔<∨== {n} {m})) (Inr (ap pred pr[Suc[n]==Suc[m]])))
 
 
 <to≤ : {n m : ℕ} → n < m → n ≤ m

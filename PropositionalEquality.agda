@@ -97,6 +97,11 @@ transpEqLemmc : {A : Set} → {x1 x2 : A} →
                 (p : x1 == x2) → (q : x1 == x1) →
                 transp (λ x -> x == x) p q == trans== (trans== (sym== p) q) p
 
+{- Lemma 2.11.4 HoTT-book -}
+transpEqDepFun : {A : Set} → {B : A → Set} → (f g : (x : A) → B x) →
+                 {a0 a1 : A} → (p : a0 == a1) → (q : f a0 == g a0) →
+                 transp (λ x -> f x == g x) p q ==  (apd f p)≀ · ap (transp B p) q · apd g p
+
 {- Lemma 3.11.8 -}
 pathSpaceContractible : {A : Set} → (a : A) →
               isContr (A Σ λ x -> a == x)
@@ -343,7 +348,7 @@ transpEqLemmb {A} {a} {x1} =
     trans== (sym== (refl x1)) q
      qed
 
-
+  
 {- Lemma 2.11.2 c HoTT-book -}
 
 transpEqLemmc : {A : Set} → {x1 x2 : A} →
@@ -367,7 +372,8 @@ transpEqLemmc {A} {x1} =
      qed
 
 
-{-
+{- Lemma 2.11.4 HoTT-book -}
+
 transpEqDepFun : {A : Set} → {B : A → Set} → (f g : (x : A) → B x) →
                  {a0 a1 : A} → (p : a0 == a1) → (q : f a0 == g a0) →
                  transp (λ x -> f x == g x) p q ==  (apd f p)≀ · ap (transp B p) q · apd g p
@@ -379,22 +385,22 @@ transpEqDepFun {A} {B} f g = pI P d where
     transp (λ x -> f x == g x) (refl a0) q
     ==⟨ transpRefl (λ x -> f x == g x) q ⟩
     q
-    ==⟨ (rightUnit==Refl q)≀ ⟩
-    q · refl (g a0)
-    ==⟨ ap (trans== q) (apdRefl g a0)≀ ⟩
-    q · apd g (refl a0)
-    ==⟨ (leftUnit==Refl (q · apd g (refl a0)))≀ ⟩
-    refl (f a0) · q · apd g (refl a0)
+    ==⟨ sym== (apId q) ⟩
+    ap id q
+    ==⟨ (rightUnit==Refl (ap id q))≀ ⟩
+    (ap id q) · refl (g a0)
+    ==⟨ ap (trans== (ap id q)) (apdRefl g a0)≀ ⟩
+    (ap id q) · apd g (refl a0)
+    ==⟨ (leftUnit==Refl ((ap id q) · apd g (refl a0)))≀ ⟩
+    refl (f a0) · (ap id q) · apd g (refl a0)
     ==⟨ bydef ⟩
-    (refl (f a0))≀ · q · apd g (refl a0)
-    ==⟨ ap (λ π -> (π)≀ · q · apd g (refl a0)) (apdRefl f a0)≀ ⟩
-    (apd f (refl a0))≀ · q · apd g (refl a0)
-    ==⟨ ap (λ π -> (apd f (refl a0))≀ · π · apd g (refl a0)) ((transpRefl B q)≀) ⟩
-
-           das funktioniert noch nicht, wir bräuchten ausser transRefl eine
-           etwas stärkere Version von apId, die zeigt, dass  aus f ~ id folgt aus
-           ap f ~ ap id ((nach apId) ~ id)    Wie kann man das zeigen?
+    (refl (f a0))≀ · (ap id q) · apd g (refl a0)
+    ==⟨ ap (λ π -> (π)≀ · (ap id q) · apd g (refl a0)) (apdRefl f a0)≀ ⟩
+    (apd f (refl a0))≀ · (ap id q) · apd g (refl a0)
+    ==⟨ bydef ⟩
     (apd f (refl a0))≀ · (ap (transp B (refl a0)) q) · apd g (refl a0)
     qed
--}
+
+
+
 

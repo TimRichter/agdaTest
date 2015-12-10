@@ -42,13 +42,26 @@ biinv f = linv f × rinv f
 
 ishae : {A B : Set} → (f : A → B) → Set
 ishae {A} {B} f = (B → A) Σ (λ g ->
-                              g ∘ f ∼ id Σ (λ η -> f ∘ g ∼ id Σ (λ ε -> (x : A) → app f (η x) == ε (f x))))
+                              g ∘ f ∼ id Σ (λ η -> f ∘ g ∼ id Σ (λ ε -> (x : A) → ap f (η x) == ε (f x))))
+
+isequiv : {A B : Set} → (f : A → B) → Set
+isequiv = ishae
+
+_≃_ : Set → Set → Set
+A ≃ B = (A → B) Σ (λ f -> isequiv f)
 
 {- coherences -}
 
 lcoh : {A B : Set} → (f : A → B) → linv f → Set
-lcoh {A} {B} f << g , η >> =  f ∘ g ∼ id Σ (λ ε -> (y : B) → app g (ε y) == η (g y))
+lcoh {A} {B} f << g , η >> =  f ∘ g ∼ id Σ (λ ε -> (y : B) → ap g (ε y) == η (g y))
 
 rcoh : {A B : Set} → (f : A → B) → rinv f → Set
-rcoh {A} {B} f << g , ε >> =  g ∘ f ∼ id Σ (λ η -> (x : A) → app f (η x) == ε (f x))
+rcoh {A} {B} f << g , ε >> =  g ∘ f ∼ id Σ (λ η -> (x : A) → ap f (η x) == ε (f x))
 
+{- propositions -}
+
+{- Äquivalnezrelation von allen Äquivalenzdefinitionen zeigen -}
+
+transpEqEquiv : {A : Set} → {a0 a1 : A} → (p : a0 == a1) → (q : a0 == a0) → (r : a1 == a1)
+                → transp (λ (x : A) -> x == x) p q == r ≃ q · p == p · r
+transpEqEquiv...                
