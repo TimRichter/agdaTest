@@ -93,4 +93,3 @@ data Dec (A : Set) : Set where
   Yes : ( a :   A) → Dec A
   No  : (¬a : ¬ A) → Dec A
 
-
