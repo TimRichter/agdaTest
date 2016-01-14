@@ -14,3 +14,4 @@ postulate
 main = run (
        (readFiniteFile "testInput.txt")
        >>= ( λ x → putStrLn "Hallo, " ++ x ++ "!" ))
+
