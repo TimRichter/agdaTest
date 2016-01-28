@@ -15,3 +15,9 @@ main = run (
        (readFiniteFile "testInput.txt")
        >>= ( λ x → putStrLn "Hallo, " ++ x ++ "!" ))
 
+
+{- compilation mit:
+
+   agda -c TestIO.agda -i. -i/home/tim/projects/agda-prelude/src
+
+-}
