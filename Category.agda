@@ -1,18 +1,19 @@
 module Category where
 
-open import TypeConstructions
-open import PropositionalEquality
+open import TypeConstructionsL
+open import PropositionalEqualityL
 open import Agda.Primitive
 
-Cat : {n : Level} → Set (lsuc n)
-Cat {n} = (Set n) Σ (λ Ob -> ( ((a b : Ob) → (Set n)) Σ λ Hom -> ( ((a : Ob) → Hom a a) Σ 
-                                                                       λ id -> ((a b c : Ob) → (f : Hom b c) → (g : Hom a b) → Hom a c) Σ
-                                            λ comp -> ((a b : Ob) → (f : Hom a b) → (comp (id b) f == f) × (comp f (id a) == f)) ×
-                                                      ((a b c d : Ob) → (f : Hom c d) → (g : Hom b c) → (h : Hom a b) →
-                                                         comp f (comp g h) == comp (comp f g) h
-                                                      )
-                                                          
-                                                          
-                                                      )
-                     )
-            )
+data nat {n : Level} : Set n where
+  Z : nat
+  S : nat → nat
+
+Cat : {n m : Level} → Set ((lsuc n) ⊔ (lsuc m))
+Cat {n} {m} = (Set n) Σ λ Ob -> (
+ ((a b : Ob) → (Set m)) Σ λ Hom -> (
+  ((a : Ob) → Hom a a) Σ λ idC -> (
+   ((a b c : Ob) → (f : Hom b c) → (g : Hom a b) → Hom a c) Σ λ comp -> (
+    ((a b : Ob) → (f : Hom a b) → (comp a b b (idC b) f == f) × (comp a a b f (idC a) == f)) ×
+     ((a b c d : Ob) → (f : Hom c d) → (g : Hom b c) → (h : Hom a b) → comp a c d f (comp a b c g h) == comp a b d (comp b c d f g) h)
+                                                            ))))
+
