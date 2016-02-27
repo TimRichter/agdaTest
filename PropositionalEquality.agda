@@ -2,8 +2,8 @@
 
 module PropositionalEquality where
 
-open import TypeConstructions public
-
+--open import TypeConstructions public
+open import TypeConstructions
 
 data _==_ {A : Set} (x : A) : A → Set where
   Refl : x == x
